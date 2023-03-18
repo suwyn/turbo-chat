@@ -1,0 +1,32 @@
+x-shared_env:
+  &shared_env
+  REDIS_URL: redis://redis:6379/0
+
+x-image-name: &image_name
+  ghcr.io/suwyn/turbo-chat:dev
+
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379"
+  app:
+    build:
+      context: .
+      args:
+        rails_env: development
+        bundle_without: ''
+        skip_precompile: true
+    image: *image_name
+    volumes:
+      - .:/home/appuser/src
+    ports:
+      - "3000:3000"
+    links:
+      - redis
+    environment:
+      <<: *shared_env
+    user: 1000:1000
+    tty: true
+    stdin_open: true
+    command: ["./bin/dev"]

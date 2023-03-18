@@ -1,0 +1,8 @@
+.git/
+.github/
+.vscode/
+.env
+log/
+node_modules/
+tmp/
+config/credentials/production.key

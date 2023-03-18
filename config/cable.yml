@@ -1,0 +1,17 @@
+x-async: &async
+  adapter: async
+
+x-redis: &redis
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_URL") { "redis://redis:6379/1" } %>
+  channel_prefix: src_development
+
+development:
+  <<: *redis
+
+test:
+  adapter: test
+
+production:
+  <<: *redis
+  channel_prefix: src_production

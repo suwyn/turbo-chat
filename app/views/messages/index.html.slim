@@ -1,0 +1,11 @@
+h1 Turbo Chat
+
+= form_with model: Message.new do |form|
+  = form.text_field :text, placeholder: 'Send a new message'
+  = submit_tag 'Post'
+h2
+  span#message-count = Message.count
+  span< Messages
+ol#message-list
+  - Message.order(id: :desc).each do |message|
+    li = message.text
