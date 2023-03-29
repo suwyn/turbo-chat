@@ -20,8 +20,7 @@ ENV RUBY_YJIT_ENABLE=1 \
   RAILS_LOG_TO_STDOUT=true \
   BUNDLE_WITHOUT=${bundle_without}
 
-# COPY --chown=appuser:appuser .ruby-version Gemfile Gemfile.lock ./
-COPY --chown=appuser:appuser .ruby-version Gemfile ./
+COPY --chown=appuser:appuser .ruby-version Gemfile Gemfile.lock ./
 RUN gem install bundler -v 2.4.4 \
   && bundle install
 
