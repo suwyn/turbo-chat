@@ -1,0 +1,10 @@
+development:
+  adapter: sqlite
+  channel_prefix: src_development
+
+test:
+  adapter: test
+
+production:
+  adapter: sqlite
+  channel_prefix: src_production
