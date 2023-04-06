@@ -34,3 +34,31 @@ Optionally, start the chatbot task by running `docker-compose run app rails chat
 > All processes using a database must be on the same host computer; WAL does not work over a network filesystem.
 
 https://www.sqlite.org/wal.html
+
+### Load testing
+
+### Reads
+
+One off request to verify that reads are going to the reader
+
+`curl 'http://localhost:3000/rooms'`
+
+#### Apache Benchmark test
+
+1000 requests, 15 at a time
+
+`ab -n 1000 -l -c 15 'http://localhost:3000/rooms'`
+
+### Writes
+
+One off request to verify that reads are going to the writer
+
+`curl -X POST 'http://localhost:3000/rooms'`
+
+#### Apache Benchmark test
+
+1000 requests, 15 at a time
+
+`ab -n 1000 -l -c 15 -m POST 'http://localhost:3000/rooms'`
+
+`ab -n 100 -l -c 2 -m POST 'http://localhost:3000/rooms'`

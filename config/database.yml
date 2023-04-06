@@ -1,9 +1,3 @@
-# SQLite. Versions 3.8.0 and up are supported.
-#   gem install sqlite3
-#
-#   Ensure the SQLite 3 gem is defined in your Gemfile
-#   gem "sqlite3"
-#
 default: &default
   adapter: sqlite3
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
@@ -18,35 +12,91 @@ extended: &extended
   page_size: 32768
 
 development:
+  ##################################################################
+  # This is the working configuration
+  #   no errors at any concurrency (within reason)
+
   primary:
     <<: *default
     <<: *extended
+    pool: 1
+    # this needs to be larger than busy_timeout
+    checkout_timeout: 6 # time waiting for pool connection (seconds)
+    # ActiveRecord::ConnectionTimeoutError (could not obtain a connection from the pool within 1.000 seconds (waited 1.001 seconds); all pooled connections were in use)
+    # max time for a write query
+    busy_timeout: 5000 # handle SQLite busy errors (milliseconds)
     database: db/development-primary.sqlite3
+
+  primary_reader:
+    <<: *default
+    <<: *extended
+    pool: 5
+    checkout_timeout: 2 # time waiting for pool connection (seconds), needs to be greater than timeout
+    busy_timeout: 1500
+    replica: true # prevents rake commands executing against db
+    readonly: true
+    database: db/development-primary.sqlite3
+
+
+  ##################################################################
+  # This configuration results in SQLite3::BusyException errors:
+  #   ActiveRecord::StatementInvalid (SQLite3::BusyException: database is locked)
+  # The only difference is the pool size has increased > 1 for the writer
+  #
+  # To reproduce, run these two ab tests at the same time
+  #   $ ab -n 1000 -l -c 3 -m POST 'http://localhost:3000/rooms'
+  #   $ ab -n 1000 -l -c 15 'http://localhost:3000/rooms'
+  # The errors can be monitored by running this tail before the the tests
+  #   tail -f log/development.log | grep --line-buffered -A 5 'Completed 500'
+
+  # primary:
+  #   <<: *default
+  #   <<: *extended
+  #   pool: 5
+  #   # this needs to be larger than busy_timeout
+  #   checkout_timeout: 6 # time waiting for pool connection (seconds)
+  #   # ActiveRecord::ConnectionTimeoutError (could not obtain a connection from the pool within 1.000 seconds (waited 1.001 seconds); all pooled connections were in use)
+  #   # max time for a write query
+  #   busy_timeout: 5000 # handle SQLite busy errors (milliseconds)
+  #   database: db/development-primary.sqlite3
+
+  # primary_reader:
+  #   <<: *default
+  #   <<: *extended
+  #   pool: 5
+  #   checkout_timeout: 2 # time waiting for pool connection (seconds), needs to be greater than timeout
+  #   busy_timeout: 1500
+  #   replica: true # prevents rake commands executing against db
+  #   readonly: true
+  #   database: db/development-primary.sqlite3
+
+
+  ##################################################################
+  # This is the desired configuration, allowing for both reads and writes
+  # Make sure to comment this out when running this configuration:
+  # app/modes/application_record.rb
+  #
+  #   connects_to database: {
+  #     writing: :primary,
+  #     reading: :primary_reader
+  #   }
+  # And the role switching in rooms_controller.rb
+  #   ActiveRecord::Base.connected_to(role: :reading) block
+
+  # primary:
+  #   <<: *default
+  #   <<: *extended
+  #   pool: 50
+  #   # this needs to be larger than busy_timeout
+  #   checkout_timeout: 6 # time waiting for pool connection (seconds)
+  #   # ActiveRecord::ConnectionTimeoutError (could not obtain a connection from the pool within 1.000 seconds (waited 1.001 seconds); all pooled connections were in use)
+  #   # max time for a write query
+  #   busy_timeout: 5000 # handle SQLite busy errors (milliseconds)
+  #   database: db/development-primary.sqlite3
+
+
   action_cable:
     <<: *default
     <<: *extended
     database: db/development-action-cable.sqlite3
-    pool: 1
-
-# Warning: The database defined as "test" will be erased and
-# re-generated from your development database when you run "rake".
-# Do not set this db to the same as development or production.
-test:
-  primary:
-    <<: *default
-    database: db/test-primary.sqlite3
-  action_cable:
-    <<: *default
-    database: db/test-action-cable.sqlite3
-    migrations_paths: db/action_cable_migrate
-    pool: 1
-
-production:
-  primary:
-    <<: *default
-    database: db/production-primary.sqlite3
-  action_cable:
-    <<: *default
-    database: db/production-action-cable.sqlite3
-    migrations_paths: db/action_cable_migrate
     pool: 1
