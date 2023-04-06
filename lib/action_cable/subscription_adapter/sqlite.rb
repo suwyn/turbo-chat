@@ -88,8 +88,10 @@ module ActionCable
 
           # https://guides.rubyonrails.org/threading_and_code_execution.html#wrapping-application-code
           @thread = Thread.new do
-            Thread.current.abort_on_exception = true
-            listen
+            Rails.application.executor.wrap do
+              Thread.current.abort_on_exception = true
+              listen
+            end
           end
         end
 
@@ -98,12 +100,12 @@ module ActionCable
             ActionCableRecord.migrate
             save_latest_message_id(sqlite_conn)
 
-            # loop do
-            #   until @shutdown
-            #     broadcast_new_messages(sqlite_conn)
-            #     sleep @poll_interval
-            #   end
-            # end
+            loop do
+              until @shutdown
+                broadcast_new_messages(sqlite_conn)
+                sleep @poll_interval
+              end
+            end
           end
         end
 
