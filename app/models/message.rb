@@ -7,7 +7,7 @@ class Message < ApplicationRecord
     broadcast_replace_to(
       'turbo_chat',
       target: 'message-count',
-      html: self.class.count
+      html: "<span id='message-count'>#{self.class.count}</span>"
     )
 
     broadcast_prepend_to(
