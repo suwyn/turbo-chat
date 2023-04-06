@@ -86,9 +86,12 @@ module ActionCable
           @shutdown = false
           @latest_message_id = nil
 
+          # https://guides.rubyonrails.org/threading_and_code_execution.html#wrapping-application-code
           @thread = Thread.new do
-            Thread.current.abort_on_exception = true
-            listen
+            Rails.application.executor.wrap do
+              Thread.current.abort_on_exception = true
+              listen
+            end
           end
         end
 
