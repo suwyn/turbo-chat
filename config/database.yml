@@ -9,16 +9,24 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
+extended: &extended
+  # https://phiresky.github.io/blog/2020/sqlite-performance-tuning/
+  journal_mode: WAL
+  temp_store: MEMORY
+  synchronous: NORMAL
+  mmap_size: 30000000000
+  page_size: 32768
 
 development:
   primary:
     <<: *default
+    <<: *extended
     database: db/development-primary.sqlite3
   action_cable:
     <<: *default
+    <<: *extended
     database: db/development-action-cable.sqlite3
     pool: 1
-    migrations_paths: db/action_cable_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
