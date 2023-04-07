@@ -6,7 +6,7 @@ services:
         rails_env: development
         bundle_without: ''
         skip_precompile: 'true'
-    image: ghcr.io/suwyn/turbo-chat:dev
+    image: ghcr.io/suwyn/turbo-chat:jruby-dev
     volumes:
       - .:/home/appuser/src
     ports:

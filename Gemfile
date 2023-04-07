@@ -7,11 +7,9 @@ ruby File.read('.ruby-version').split('-').last.strip
 
 gem 'rails', '~> 7.0.4'
 
-gem 'sqlite3'
+gem 'activerecord-jdbcsqlite3-adapter'
 
 gem 'puma', '~> 5.0'
-
-gem 'faye'
 
 gem 'importmap-rails'
 
@@ -40,7 +38,6 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem 'web-console'
   gem 'pry', '~> 0.14'
-  gem 'pry-byebug', '~> 3.10'
   gem 'pry-rails', '~> 0.3'
   gem "rubocop", "~> 1.43"
   gem "rubocop-rails", "~> 2.17"

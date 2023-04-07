@@ -1,8 +1,9 @@
-FROM ruby:3.2.1
+FROM jruby:9
 
 RUN groupadd appuser && useradd -m -g appuser appuser
 
 RUN apt-get update \
+  && apt-get install netbase \
   && rm -rf /var/lib/apt/lists/*
 
 USER appuser
