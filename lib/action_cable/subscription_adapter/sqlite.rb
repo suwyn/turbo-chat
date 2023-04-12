@@ -8,7 +8,7 @@ module ActionCable
       def initialize(*)
         super
         @sync = Mutex.new
-        @listener = Listener.new(self)
+        @listener = nil
       end
 
       # alias the existing broadcast method from Async adapter
@@ -34,7 +34,7 @@ module ActionCable
       end
 
       def shutdown
-        @listener.shutdown
+        @listener.shutdown if @listener
       end
 
       def with_subscriptions_connection
@@ -87,8 +87,10 @@ module ActionCable
           @latest_message_id = nil
 
           @thread = Thread.new do
-            Thread.current.abort_on_exception = true
-            listen
+            Rails.application.executer.wrap do
+              Thread.current.abort_on_exception = true
+              listen
+            end
           end
         end
 
