@@ -17,7 +17,7 @@ development:
   action_cable:
     <<: *default
     database: db/development-action-cable.sqlite3
-    pool: 1
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>
     migrations_paths: db/action_cable_migrate
 
 # Warning: The database defined as "test" will be erased and
@@ -31,7 +31,7 @@ test:
     <<: *default
     database: db/test-action-cable.sqlite3
     migrations_paths: db/action_cable_migrate
-    pool: 1
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>
 
 production:
   primary:
@@ -41,4 +41,4 @@ production:
     <<: *default
     database: db/production-action-cable.sqlite3
     migrations_paths: db/action_cable_migrate
-    pool: 1
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>

@@ -8,7 +8,7 @@ module ActionCable
       def initialize(*)
         super
         @sync = Mutex.new
-        @listener = nil
+        @listener = Listener.new(self)
       end
 
       # alias the existing broadcast method from Async adapter
@@ -34,7 +34,7 @@ module ActionCable
       end
 
       def shutdown
-        @listener.shutdown if @listener
+        @listener.shutdown
       end
 
       def with_subscriptions_connection
@@ -66,10 +66,6 @@ module ActionCable
 
       private
 
-      def listener
-        @listener || @server.mutex.synchronize { @listener ||= Listener.new(self) }
-      end
-
       def verify!(sqlite_conn)
         return if sqlite_conn.is_a?(SQLite3::Database)
 
@@ -87,10 +83,8 @@ module ActionCable
           @latest_message_id = nil
 
           @thread = Thread.new do
-            Rails.application.executer.wrap do
-              Thread.current.abort_on_exception = true
-              listen
-            end
+            Thread.current.abort_on_exception = true
+            listen
           end
         end
 
@@ -99,11 +93,9 @@ module ActionCable
             ActionCableRecord.migrate
             save_latest_message_id(sqlite_conn)
 
-            loop do
-              until @shutdown
-                broadcast_new_messages(sqlite_conn)
-                sleep @poll_interval
-              end
+            until @shutdown
+              broadcast_new_messages(sqlite_conn)
+              sleep @poll_interval
             end
           end
         end
@@ -119,7 +111,7 @@ module ActionCable
           rows = sqlite_conn.execute(<<-STATEMENT.squish)
             SELECT * FROM messages WHERE id > #{@latest_message_id}
           STATEMENT
-          rows.each do |row|
+          rows&.each do |row|
             begin
               message = JSON.parse(row['message'])
             rescue
