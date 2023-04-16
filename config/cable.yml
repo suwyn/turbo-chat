@@ -1,6 +1,7 @@
 development:
   adapter: sqlite
   channel_prefix: src_development
+  database: db/development-action-cable.sqlite3
 
 test:
   adapter: test

@@ -9,16 +9,10 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
-
 development:
   primary:
     <<: *default
     database: db/development-primary.sqlite3
-  action_cable:
-    <<: *default
-    database: db/development-action-cable.sqlite3
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>
-    migrations_paths: db/action_cable_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -27,18 +21,8 @@ test:
   primary:
     <<: *default
     database: db/test-primary.sqlite3
-  action_cable:
-    <<: *default
-    database: db/test-action-cable.sqlite3
-    migrations_paths: db/action_cable_migrate
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>
 
 production:
   primary:
     <<: *default
     database: db/production-primary.sqlite3
-  action_cable:
-    <<: *default
-    database: db/production-action-cable.sqlite3
-    migrations_paths: db/action_cable_migrate
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } * 4 %>
