@@ -9,8 +9,6 @@ gem 'rails', '~> 7.0.4'
 
 gem 'sqlite3'
 
-gem "redis", "~> 4.0"
-
 gem 'puma', '~> 5.0'
 
 gem 'faye'

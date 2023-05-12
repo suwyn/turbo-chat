@@ -1,17 +1,11 @@
-x-async: &async
-  adapter: async
-
-x-redis: &redis
-  adapter: redis
-  url: <%= ENV.fetch("REDIS_URL") { "redis://redis:6379/1" } %>
-  channel_prefix: src_development
-
 development:
-  <<: *redis
+  adapter: sqlite
+  channel_prefix: src_development
+  database: db/development-action-cable.sqlite3
 
 test:
   adapter: test
 
 production:
-  <<: *redis
+  adapter: sqlite
   channel_prefix: src_production
